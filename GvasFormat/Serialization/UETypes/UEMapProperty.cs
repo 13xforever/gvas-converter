@@ -15,6 +15,10 @@ namespace GvasFormat.Serialization.UETypes
         {
             var keyType = reader.ReadUEString();
             var valueType = reader.ReadUEString();
+
+            if (valueType == "IntProperty")
+                valueType += "Array";
+
             var unknown = reader.ReadBytes(5);
             if (unknown.Any(b => b != 0))
                 throw new InvalidOperationException($"Offset: 0x{reader.BaseStream.Position-5:x8}. Expected ??? to be 0, but was 0x{unknown.AsHex()}");
@@ -23,19 +27,39 @@ namespace GvasFormat.Serialization.UETypes
             for (var i = 0; i < count; i++)
             {
                 UEProperty key, value;
+
                 if (keyType == "StructProperty")
                     key = Read(reader);
                 else
                     key = UESerializer.Deserialize(null, keyType, -1, reader);
                 var values = new List<UEProperty>();
-                do
-                {
-                    if (valueType == "StructProperty")
+
+                switch(valueType) {
+                    case "StructProperty":
                         value = Read(reader);
-                    else
+                        break;
+                    case "BoolProperty":
+                        value = new UEBoolProperty()
+                        {
+                            Value = reader.ReadBoolean()
+                        };
+                        Debug.WriteLine(String.Format("  {0}: {1}", ((UEStringProperty)key).Value, ((UEBoolProperty)value).Value));
+                        break;
+                    case "FloatProperty":
+                        var bytes = reader.ReadBytes(4);
+                        value = new UEFloatProperty()
+                        {
+                            Value = System.BitConverter.ToSingle(bytes, 0)
+                        };
+                        Debug.WriteLine(String.Format("  {0}: {1}", ((UEStringProperty)key).Value, ((UEFloatProperty)value).Value));
+                        break;
+                    default:
                         value = UESerializer.Deserialize(null, valueType, -1, reader);
-                    values.Add(value);
-                } while (!(value is UENoneProperty));
+                        break;
+                }
+
+                values.Add(value);
+
                 Map.Add(new UEKeyValuePair{Key = key, Values = values});
             }
         }

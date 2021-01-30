@@ -53,8 +53,15 @@ namespace GvasFormat.Serialization.UETypes
                 case "Rotator":
                     result = new UEVectorStructProperty(reader);
                     break;
+                case "Rotation":
+                    result = new UEVectorStructProperty(reader);
+                    break;
                 case "LinearColor":
                     result = new UELinearColorStructProperty(reader);
+                    break;
+                case "Quat":
+                    // TODO: Implement Quat parser, GUID parser as placeholder, results are currently invalid
+                    result = new UEGuidStructProperty(reader); 
                     break;
                 default:
                     var tmp = new UEGenericStructProperty();

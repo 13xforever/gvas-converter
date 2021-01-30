@@ -15,13 +15,16 @@ namespace GvasFormat.Serialization.UETypes
         {
             EnumType = reader.ReadUEString();
 
-            var terminator = reader.ReadByte();
-            if (terminator != 0)
-                throw new FormatException($"Offset: 0x{reader.BaseStream.Position - 1:x8}. Expected terminator (0x00), but was (0x{terminator:x2})");
+            if (valueLength > -1)
+            {
+                var terminator = reader.ReadByte();
+                if (terminator != 0)
+                    throw new FormatException($"Offset: 0x{reader.BaseStream.Position - 1:x8}. Expected terminator (0x00), but was (0x{terminator:x2})");
+            }
 
-            // valueLength starts here
-
-            Value = reader.ReadUEString();
+            var length = reader.ReadInt32();
+            var valueBytes = reader.ReadBytes(length);
+            Value = Utf8.GetString(valueBytes, 0, valueBytes.Length - 1);
         }
 
         public override void Serialize(BinaryWriter writer) => throw new NotImplementedException();
