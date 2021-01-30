@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace GvasFormat.Serialization.UETypes
@@ -7,6 +8,7 @@ namespace GvasFormat.Serialization.UETypes
     {
         public string Name;
         public string Type;
+        public string Address;
 
         public abstract void Serialize(BinaryWriter writer);
 
@@ -23,7 +25,9 @@ namespace GvasFormat.Serialization.UETypes
                 return new UENoneProperty { Name = name };
 
             var type = reader.ReadUEString();
+            
             var valueLength = reader.ReadInt64();
+
             return UESerializer.Deserialize(name, type, valueLength, reader);
         }
 

@@ -1,17 +1,22 @@
-﻿using System;
+﻿using GvasFormat.Utils;
+using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace GvasFormat.Serialization.UETypes
 {
-    [DebuggerDisplay("Count = {Items.Length}", Name = "{Name}")]
-    public sealed class UEArrayProperty : UEProperty
+    [DebuggerDisplay("{Value}", Name = "{Name}")]
+    public sealed class UESetProperty : UEProperty
     {
-        public UEArrayProperty() { }
+        private static readonly Encoding Utf8 = new UTF8Encoding(false);
 
-        public UEArrayProperty(BinaryReader reader, long valueLength)
+        public UESetProperty() { }
+        public UESetProperty(BinaryReader reader, long valueLength)
         {
-            ItemType = reader.ReadUEString();
+            var ItemType = reader.ReadUEString();
+
             if (ItemType == "IntProperty")
                 ItemType += "Array";
 
@@ -19,10 +24,11 @@ namespace GvasFormat.Serialization.UETypes
             if (terminator != 0)
                 throw new FormatException($"Offset: 0x{reader.BaseStream.Position - 1:x8}. Expected terminator (0x00), but was (0x{terminator:x2})");
 
-            // valueLength starts here
+            reader.ReadInt32();
             var count = reader.ReadInt32();
-            Items = new UEProperty[count];
+            Address = $"0x{ reader.BaseStream.Position - 1:x8}";
 
+            Items = new UEProperty[count];
             switch (ItemType)
             {
                 case "StructProperty":
@@ -39,6 +45,7 @@ namespace GvasFormat.Serialization.UETypes
                         {
                             Value = value
                         };
+                        Debug.WriteLine(String.Format("  {0} {1}", ((UEIntProperty)Items[i]).Value, $"0x{reader.BaseStream.Position - 1:x8}"));
                     }
                     break;
                 case "EnumProperty":
@@ -48,6 +55,7 @@ namespace GvasFormat.Serialization.UETypes
                         {
                             Value = reader.ReadUEString(),
                         };
+                        Debug.WriteLine(String.Format("  {0} ({1}) {2}", ((UEEnumProperty)Items[i]).EnumType, ((UEEnumProperty)Items[i]).Value, $"0x{reader.BaseStream.Position - 1:x8}"));
                     }
                     break;
                 case "SoftObjectProperty":
@@ -57,17 +65,18 @@ namespace GvasFormat.Serialization.UETypes
                         {
                             Value = reader.ReadUEString(),
                         };
-                        reader.ReadBytes(4);
+                        Debug.WriteLine(String.Format("  {0} {1}", ((UEStringProperty)Items[i]).Value, $"0x{reader.BaseStream.Position - 1:x8}"));
                     }
                     break;
                 default:
-                {
-                    for (var i = 0; i < count; i++)
-                        Items[i] = UESerializer.Deserialize(null, ItemType, -1, reader);
-                    break;
-                }
+                    {
+                        for (var i = 0; i < count; i++)
+                            Items[i] = UESerializer.Deserialize(null, ItemType, -1, reader);
+                        break;
+                    }
             }
         }
+
         public override void Serialize(BinaryWriter writer) { throw new NotImplementedException(); }
 
         public string ItemType;

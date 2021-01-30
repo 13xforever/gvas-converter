@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 
 namespace GvasFormat.Serialization
@@ -7,17 +8,39 @@ namespace GvasFormat.Serialization
     {
         private static readonly Encoding Utf8 = new UTF8Encoding(false);
 
+        public static byte Reverse(byte value)
+        {
+            byte reverse = 0;
+            for (int bit = 0; bit < 8; bit++)
+            {
+                reverse <<= 1;
+                reverse |= (byte)(value & 1);
+                value >>= 1;
+            }
+
+            return reverse;
+        }
+
         public static string ReadUEString(this BinaryReader reader)
         {
             if (reader.PeekChar() < 0)
                 return null;
 
-            var length = reader.ReadInt32();
+
+            var bytes = reader.ReadBytes(4);
+            var length = BitConverter.ToInt32(bytes, 0);
+
             if (length == 0)
                 return null;
 
             if (length == 1)
                 return "";
+
+            if (length < 0)
+            {
+                // negative seems to indicate double length encoding, utf-8 rather than ascii
+                length = Math.Abs(length)*2;
+            }
 
             var valueBytes = reader.ReadBytes(length);
             return Utf8.GetString(valueBytes, 0, valueBytes.Length - 1);

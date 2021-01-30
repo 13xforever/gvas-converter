@@ -20,6 +20,7 @@ namespace GvasFormat.Serialization.UETypes
                     throw new FormatException($"Offset: 0x{reader.BaseStream.Position - 1:x8}. Expected terminator (0x00), but was (0x{terminator:x2})");
             }
 
+            Address = $"0x{ reader.BaseStream.Position - 1:x8}";
             Value = reader.ReadUEString();
         }
 

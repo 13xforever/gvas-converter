@@ -8,15 +8,15 @@ namespace GvasFormat.Serialization.UETypes
     public sealed class UEIntProperty : UEProperty
     {
         public UEIntProperty() { }
-        public UEIntProperty(BinaryReader reader, long valueLength)
+
+        public UEIntProperty(BinaryReader reader, long valueLength, bool term)
         {
-            var terminator = reader.ReadByte();
-            if (terminator != 0)
-                throw new FormatException($"Offset: 0x{reader.BaseStream.Position - 1:x8}. Expected terminator (0x00), but was (0x{terminator:x2})");
-
-            if (valueLength != sizeof(int))
-                throw new FormatException($"Expected int value of length {sizeof(int)}, but was {valueLength}");
-
+            if (term)
+            {
+                var terminator = reader.ReadByte();
+            }
+            
+            Address = $"0x{ reader.BaseStream.Position - 1:x8}";
             Value = reader.ReadInt32();
         }
 

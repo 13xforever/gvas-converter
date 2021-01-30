@@ -10,9 +10,7 @@ namespace GvasFormat.Serialization.UETypes
         public UEBoolProperty() { }
         public UEBoolProperty(BinaryReader reader, long valueLength)
         {
-            if (valueLength != 0)
-                throw new FormatException($"Offset: 0x{reader.BaseStream.Position - 1:x8}. Expected bool value length 0, but was {valueLength}");
-
+            Address = $"0x{ reader.BaseStream.Position - 1:x8}";
             var val = reader.ReadInt16();
             if (val == 0)
                 Value = false;
@@ -20,6 +18,11 @@ namespace GvasFormat.Serialization.UETypes
                 Value = true;
             else
                 throw new InvalidOperationException($"Offset: 0x{reader.BaseStream.Position - 1:x8}. Expected bool value, but was {val}");
+
+            if (reader.PeekChar() == 'N')
+            {
+                var throwAway = reader.ReadBytes(10);
+            }
         }
 
         public override void Serialize(BinaryWriter writer) { throw new NotImplementedException(); }
