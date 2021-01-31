@@ -33,7 +33,7 @@ A: If the errors are not related to locating your SAV file then the file is eith
 A: You can use a hex editor, such as [HxD](https://mh-nexus.de/en/hxd/) to change values in the SAV file.  
 
 &nbsp;&nbsp;1. Backup your original SAV file.  
-&nbsp;&nbsp;2. Locate the value wish to change using the JSON file.
+&nbsp;&nbsp;2. Locate the value wish to change using the JSON file.  
 &nbsp;&nbsp;3. Copy the hex address of the value, not including 0x.  
 &nbsp;&nbsp;&nbsp;&nbsp;i. For Example: "Address": "0x0000c6e0" copy "000c6e0"  
 &nbsp;&nbsp;4. Open the SAV file in a hex editor.  
