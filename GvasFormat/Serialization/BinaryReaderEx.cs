@@ -16,9 +16,15 @@ namespace GvasFormat.Serialization
             if (length == 0)
                 return null;
 
+            if (length < 0)
+            {
+                reader.BaseStream.Position += length;
+                return null;
+            }
+
             if (length == 1)
                 return "";
-
+            
             var valueBytes = reader.ReadBytes(length);
             return Utf8.GetString(valueBytes, 0, valueBytes.Length - 1);
         }
