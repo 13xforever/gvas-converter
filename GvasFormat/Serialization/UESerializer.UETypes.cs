@@ -18,6 +18,12 @@ namespace GvasFormat.Serialization
                 case "IntProperty":
                     result = new UEIntProperty(reader, valueLength);
                     break;
+                case "Int64Property":
+                    result = new UEInt64Property(reader, valueLength);
+                    break;
+                case "Int8Property":
+                    result = new UEInt8Property(reader, valueLength);
+                    break;
                 case "FloatProperty":
                     result = new UEFloatProperty(reader, valueLength);
                     break;
