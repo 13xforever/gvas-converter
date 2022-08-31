@@ -13,4 +13,5 @@
   <ItemGroup>
     <ProjectReference Include="..\GvasFormat\GvasFormat.csproj" />
   </ItemGroup>
+  
 </Project>
